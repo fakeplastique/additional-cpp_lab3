@@ -20,7 +20,7 @@ void f(char actionSet, int actionIdx) {
     synchronizedOut(format("З набору {} виконано дію {}.\n", actionSet, actionIdx));
 }
 
-void thread1() {
+void worker1() {
     for (int i = 1; i <= 9; i++)
         f('a', i);
     sync_point.arrive_and_wait();
@@ -32,7 +32,7 @@ void thread1() {
     f('j', 1);
 }
 
-void thread2() {
+void worker2() {
     for (int i = 1; i <= 9; i++)
         f('e', i);
     sync_point.arrive_and_wait();
@@ -45,7 +45,7 @@ void thread2() {
     f('j', 2);
 }
 
-void thread3() {
+void worker3() {
     for (int i = 1; i <= 5; i++)
         f('b', i);
     for (int i = 1; i <= 3; i++)
@@ -59,7 +59,7 @@ void thread3() {
     f('j', 3);
 }
 
-void thread4() {
+void worker4() {
     for (int i = 1; i <= 7; i++)
         f('c', i);
     f('d', 4);
@@ -76,7 +76,7 @@ void thread4() {
     f('j', 5);
 }
 
-void thread5() {
+void worker5() {
     for (int i = 6; i <= 8; i++)
         f('d', i);
 
@@ -94,7 +94,7 @@ void thread5() {
 
 using MAIN = void();
 
-MAIN *functions[] = {thread1, thread2, thread3, thread4, thread5};
+MAIN *functions[] = {worker1, worker2, worker3, worker4, worker5};
 
 int main()
 {
@@ -103,12 +103,10 @@ int main()
 
     {
         std::vector<jthread> threads;
-        for (int i = 0; i < 5; i++)
-            threads.emplace_back(functions[i]);
+        for (auto & function : functions)
+            threads.emplace_back(function);
     }
 
     synchronizedOut("Обчислення завершено.\n");
-
-
 
 }
